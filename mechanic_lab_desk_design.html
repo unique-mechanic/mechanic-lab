@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mechanic Lab — Desk Layout</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Russo+One&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080c0e; --surface:#0d1214; --panel:#111518;
+  --border:#1e2a2e; --border2:#2a3a3e;
+  --accent:#00ff88; --a2:#ff6b00; --a3:#00aaff; --red:#ff3344;
+  --text:#c8d8dc; --muted:#4a6068; --dim:#1e2c30;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.05) 2px,rgba(0,0,0,.05) 4px);pointer-events:none;z-index:9999;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes popIn{from{transform:scale(0.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* HEADER */
+header{padding:14px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--surface);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Russo One',sans-serif;font-size:15px;color:var(--accent);letter-spacing:.15em;}
+.logo span{color:var(--text);}
+.mode-ind{font-size:11px;letter-spacing:.18em;display:flex;align-items:center;gap:8px;transition:color .3s;}
+.mode-dot{width:8px;height:8px;border-radius:50%;transition:background .3s,box-shadow .3s;animation:blink 2s ease-in-out infinite;}
+
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 300px;height:calc(100vh - 53px);overflow:hidden;}
+
+/* LEFT */
+.left{overflow-y:auto;padding:24px 32px;border-right:1px solid var(--border);
+  background-image:linear-gradient(rgba(0,255,136,.016) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.016) 1px,transparent 1px);
+  background-size:44px 44px;}
+.tabs{display:flex;gap:2px;margin-bottom:22px;}
+.tab{padding:7px 16px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;background:var(--panel);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;}
+.tab.active{background:rgba(0,255,136,.08);border-color:var(--accent);color:var(--accent);}
+.tab:hover:not(.active){color:var(--text);border-color:var(--border2);}
+.view{display:none;}
+.view.active{display:block;}
+
+/* ===================== TOP-DOWN (OVERHEAD / BIRD'S EYE) ===================== */
+.room{
+  position:relative;
+  width:100%;
+  max-width:780px;
+  margin:0 auto;
+  background:#0a0e10;
+  border:1px solid var(--border2);
+  border-radius:6px;
+  padding:20px;
+  min-height:480px;
+}
+.room-label{font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+
+/* DESK SURFACE — top-down rectangle viewed from above */
+.desk-td{
+  background:linear-gradient(180deg,#181e22,#131920);
+  border:2px solid var(--border2);
+  border-radius:3px;
+  position:relative;
+  margin-bottom:18px;
+}
+.desk-td.active-desk{box-shadow:0 0 0 1px var(--mc,#00ff88),0 0 30px var(--mg,rgba(0,255,136,.1));}
+.desk-td-label{
+  position:absolute;top:-10px;left:12px;
+  background:var(--bg);padding:0 8px;
+  font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+}
+
+/* Desk 1: wide, shallow depth = typical overhead desk look */
+.desk1-td{width:100%;height:170px;padding:10px 14px 8px;}
+.desk2-td{width:55%;height:130px;padding:10px 14px 8px;}
+
+/* MONITOR row from above — monitors look like thin rectangles at the BACK edge */
+.mon-back-row{
+  display:flex;gap:6px;justify-content:flex-start;align-items:flex-end;
+  position:absolute;top:8px;left:14px;right:14px;
+}
+
+/* Overhead monitor: very flat rectangle (just the top edge visible from above) */
+.mon-top{
+  background:#0c1214;
+  border:1.5px solid var(--border2);
+  border-bottom:3px solid #222;  /* thickness suggestion */
+  border-radius:2px 2px 0 0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:1px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+}
+.mon-top .mt-led{
+  position:absolute;bottom:0;left:0;right:0;height:2px;
+  transition:background .4s,opacity .4s;
+}
+.mon-top .mt-label{font-size:7px;letter-spacing:.1em;color:var(--muted);text-align:center;line-height:1.3;}
+.mon-top .mt-size{font-family:'Russo One',sans-serif;font-size:13px;color:var(--text);line-height:1;}
+
+/* sizes */
+.mt-primary{width:140px;height:28px;}
+.mt-secondary,.mt-tertiary{width:108px;height:24px;}
+.mt-ultrawide{width:170px;height:26px;}
+
+/* CABLE from monitor down to desk surface (perspective hint) */
+.mon-cable{width:1px;height:8px;background:var(--dim);margin:0 auto;}
+
+/* DESK SURFACE ITEMS (viewed from above) */
+.desk-surface-items{
+  position:absolute;
+  bottom:8px;left:14px;right:14px;
+  display:flex;align-items:center;justify-content:space-between;
+  height:80px;
+}
+
+/* keyboard from above: rectangle */
+.kb-top{
+  width:170px;height:52px;
+  background:linear-gradient(180deg,#1a2024,#141a1e);
+  border:1px solid #2a3a40;
+  border-radius:3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;font-size:8px;letter-spacing:.1em;color:var(--muted);
+  position:relative;overflow:hidden;
+}
+.kb-top .kb-keys{
+  display:grid;grid-template-columns:repeat(14,8px);gap:1px;
+}
+.kb-key{width:8px;height:5px;background:var(--dim);border-radius:1px;}
+.kb-top .rgb-line{
+  position:absolute;bottom:2px;left:8%;right:8%;height:2px;
+  background:linear-gradient(90deg,#ff3344,#ff6b00,#ffdd00,#00ff88,#00aaff,#aa44ff);
+  border-radius:1px;opacity:.7;
+}
+
+/* mouse from above: oval */
+.mouse-top{
+  width:28px;height:42px;
+  background:linear-gradient(180deg,#1e2428,#141819);
+  border:1px solid #2a3540;
+  border-radius:14px 14px 10px 10px;
+  display:flex;align-items:flex-start;justify-content:center;padding-top:6px;
+}
+.mouse-btn-l,.mouse-btn-r{width:10px;height:14px;background:var(--dim);border-radius:5px 5px 2px 2px;}
+.mouse-btn-l{border-right:1px solid var(--bg);}
+
+/* tower from above: small square on the right side of desk */
+.tower-top{
+  position:absolute;right:-52px;top:10px;
+  width:44px;height:80px;
+  background:linear-gradient(180deg,#1a2428,#0f1518);
+  border:1.5px solid var(--border2);border-radius:3px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+}
+.tdot{width:6px;height:6px;border-radius:50%;animation:blink 2s ease-in-out infinite;}
+.tdot.g{background:var(--accent);box-shadow:0 0 6px var(--accent);}
+.tdot.o{background:var(--a2);box-shadow:0 0 6px var(--a2);animation-delay:.5s;}
+.tlbl{font-size:6px;color:var(--muted);writing-mode:vertical-rl;letter-spacing:.1em;}
+
+/* INPUT LEAP CONNECTOR */
+.ilconnector{
+  display:flex;align-items:center;gap:10px;
+  font-size:9px;letter-spacing:.14em;color:var(--muted);
+  margin:8px 0 8px 14px;
+  max-width:400px;
+}
+.illine{flex:1;height:1px;background:repeating-linear-gradient(90deg,var(--border) 0,var(--border) 5px,transparent 5px,transparent 10px);}
+.ilbadge{padding:3px 9px;border:1px solid rgba(0,170,255,.3);color:var(--a3);font-size:8px;letter-spacing:.13em;background:rgba(0,170,255,.04);}
+
+/* CHECKLIST ITEMS ON DESK — appear when ticked */
+.desk-addon{
+  display:none;
+  position:absolute;
+  font-size:9px;letter-spacing:.08em;
+  padding:2px 6px;
+  border-radius:2px;
+  white-space:nowrap;
+  animation:popIn .3s cubic-bezier(.34,1.56,.64,1) forwards;
+  pointer-events:none;
+  z-index:10;
+}
+.desk-addon.shown{display:block;}
+
+/* positions for desk1 addons */
+#addon-leds    {top:42px;left:50%;transform:translateX(-50%);background:rgba(100,20,200,.25);border:1px solid rgba(170,100,255,.5);color:#cc88ff;}
+#addon-mat     {bottom:6px;left:8px;right:8px;background:rgba(20,20,24,.7);border:1px solid var(--border2);color:var(--muted);text-align:center;padding:3px;border-radius:2px;}
+#addon-lightbar{top:6px;left:50%;transform:translateX(-50%);background:rgba(255,220,50,.1);border:1px solid rgba(255,220,100,.4);color:#ffee88;}
+#addon-arms    {top:36px;right:6px;background:rgba(0,180,255,.1);border:1px solid rgba(0,180,255,.35);color:var(--a3);}
+#addon-lamp    {bottom:20px;right:6px;background:rgba(255,107,0,.1);border:1px solid rgba(255,107,0,.35);color:var(--a2);}
+#addon-plant   {bottom:6px;right:6px;background:rgba(0,200,80,.1);border:1px solid rgba(0,200,80,.3);color:#44ff88;}
+#addon-pegboard{top:-28px;left:50%;transform:translateX(-50%);background:rgba(80,60,40,.3);border:1px solid rgba(180,140,80,.35);color:#ccaa66;z-index:20;}
+/* desk2 addon */
+#addon-hub     {bottom:6px;left:6px;background:rgba(0,170,255,.1);border:1px solid rgba(0,170,255,.35);color:var(--a3);}
+
+/* ===================== FRONT VIEW ===================== */
+.front-scene{
+  width:100%;max-width:780px;margin:0 auto;
+  background:#070b0d;border:1px solid var(--border2);
+  border-radius:6px;overflow:hidden;position:relative;
+}
+
+/* WALL AREA */
+.wall-area{
+  background:linear-gradient(180deg,#070b0d 0%,#0a0e12 100%);
+  padding:14px 20px 0;
+  position:relative;
+}
+
+/* WALL DECO row above monitors */
+.wall-deco-row{
+  display:flex;gap:10px;justify-content:center;margin-bottom:12px;
+  position:relative;z-index:2;
+}
+.wd{
+  background:var(--panel);border:1px solid var(--border);border-radius:3px;
+  padding:7px 10px;font-size:8px;letter-spacing:.1em;color:var(--muted);text-align:center;
+}
+.wd span{font-size:15px;display:block;margin-bottom:3px;}
+
+/* PEGBOARD wall addon in front view */
+#fv-pegboard{display:none;animation:fadeIn .3s ease forwards;}
+#fv-pegboard.shown{display:flex;}
+
+/* FRONT MONITOR SETUPS — side by side */
+.fv-desks{
+  display:flex;
+  gap:30px;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:0;
+}
+
+.fv-desk{
+  display:flex;flex-direction:column;align-items:center;
+}
+.fv-desk-label{
+  font-size:8px;letter-spacing:.18em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:8px;text-align:center;
+}
+
+/* front-view monitor cluster */
+.fv-mons{display:flex;align-items:flex-end;gap:4px;}
+.fv-mon{
+  background:#050809;
+  border:1.5px solid var(--border2);
+  border-radius:3px 3px 1px 1px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  transition:border-color .4s,box-shadow .4s;
+}
+.fv-mon .fled{position:absolute;bottom:0;left:0;right:0;height:2px;transition:background .4s,opacity .4s;}
+.fv-mon .fsc{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 6px;width:100%;}
+.cln{height:2px;border-radius:1px;background:var(--dim);margin:1px 0;}
+.cln.g{background:rgba(0,255,136,.4);}
+.cln.s{width:50%;}.cln.m{width:75%;}.cln.f{width:92%;}
+.blink-cur{width:5px;height:9px;background:var(--accent);animation:blink 1s step-end infinite;}
+
+/* monitor sizes — front view */
+.fvm-primary{width:148px;height:100px;}
+.fvm-secondary,.fvm-tertiary{width:114px;height:80px;}
+.fvm-ultrawide{width:200px;height:88px;}
+.fvm-macbook{width:100px;height:70px;border-style:solid;}
+
+.fv-stand{width:12px;height:9px;background:var(--border2);}
+.fv-base{width:34px;height:3px;background:var(--dim);border-radius:2px;}
+
+/* DIVIDER between desk 1 and 2 in front view */
+.fv-divider{
+  width:1px;height:80px;align-self:flex-end;
+  background:repeating-linear-gradient(180deg,var(--border) 0,var(--border) 4px,transparent 4px,transparent 8px);
+  margin-bottom:14px;
+}
+
+/* DESK SURFACE LINE */
+.fv-surface{
+  background:linear-gradient(90deg,#1a2428,#222c30,#1a2428);
+  height:8px;border-radius:2px 2px 0 0;
+  margin-top:0;
+}
+
+/* FLOOR / BELOW SURFACE */
+.fv-floor{
+  background:linear-gradient(180deg,#0d1214,#080c0e);
+  padding:10px 20px 16px;
+  display:flex;gap:30px;justify-content:center;align-items:flex-start;
+}
+.fv-kb-area{display:flex;flex-direction:column;align-items:center;gap:5px;}
+.fv-kb{
+  width:160px;height:24px;
+  background:linear-gradient(180deg,#1a1f22,#141819);
+  border:1px solid #2a3540;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:7px;letter-spacing:.13em;color:var(--muted);position:relative;
+}
+.fv-kb .rgb-line{position:absolute;bottom:2px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,#ff3344,#ff6b00,#ffdd00,#00ff88,#00aaff,#aa44ff);border-radius:1px;opacity:.7;}
+.fv-mouse{width:20px;height:30px;background:linear-gradient(180deg,#1e2428,#141819);border:1px solid #2a3540;border-radius:10px 10px 7px 7px;}
+.fv-items{display:flex;gap:6px;align-items:flex-end;}
+.fv-item{font-size:8px;color:var(--muted);letter-spacing:.07em;text-align:center;padding:4px 6px;background:var(--panel);border:1px solid var(--border);border-radius:2px;}
+
+/* FRONT VIEW ADDONS */
+.fv-addon{display:none;animation:popIn .3s cubic-bezier(.34,1.56,.64,1) forwards;}
+.fv-addon.shown{display:block;}
+
+/* ===================== RIGHT SIDEBAR ===================== */
+.right{background:var(--surface);overflow-y:auto;display:flex;flex-direction:column;}
+.sblock{padding:16px;border-bottom:1px solid var(--border);}
+.stitle{font-size:10px;letter-spacing:.26em;color:var(--accent);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.stitle::before{content:'▸';}
+
+/* MODES */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.mbtn{
+  padding:9px 6px;background:var(--panel);border:1px solid var(--border);
+  font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:.09em;
+  color:var(--muted);cursor:pointer;text-align:center;text-transform:uppercase;
+  transition:all .2s;border-radius:2px;
+}
+.mbtn:hover{color:var(--text);border-color:var(--border2);}
+.mbtn .mi{font-size:16px;display:block;margin-bottom:3px;pointer-events:none;}
+.mbtn[data-mode="code"].on  {background:rgba(0,255,136,.08);border-color:var(--accent);color:var(--accent);}
+.mbtn[data-mode="gaming"].on{background:rgba(255,51,68,.08);border-color:var(--red);color:var(--red);}
+.mbtn[data-mode="movie"].on {background:rgba(255,107,0,.08);border-color:var(--a2);color:var(--a2);}
+.mbtn[data-mode="mac"].on   {background:rgba(0,170,255,.08);border-color:var(--a3);color:var(--a3);}
+.mdesc{margin-top:10px;padding:10px;background:var(--panel);border:1px solid var(--border);font-size:11px;color:var(--muted);line-height:1.7;font-family:'Rajdhani',sans-serif;font-weight:500;}
+.mdesc strong{color:var(--text);display:block;margin-bottom:3px;font-size:12px;}
+
+/* OWNED */
+.olist{display:flex;flex-direction:column;gap:3px;}
+.orow{display:flex;align-items:center;gap:8px;padding:7px 8px;background:var(--panel);border:1px solid var(--border);border-left:2px solid rgba(0,255,136,.4);}
+.oicon{font-size:12px;}
+.oname{flex:1;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;color:var(--text);}
+.otag{font-size:8px;color:var(--accent);letter-spacing:.1em;padding:2px 5px;border:1px solid rgba(0,255,136,.3);}
+
+/* CHECKLIST */
+.progwrap{margin-bottom:12px;}
+.proglbl{font-size:10px;color:var(--muted);letter-spacing:.13em;margin-bottom:5px;display:flex;justify-content:space-between;}
+.proglbl span{color:var(--accent);}
+.progbar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progfill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease;}
+
+.clist{display:flex;flex-direction:column;gap:3px;}
+.citem{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:9px 8px;background:var(--panel);
+  border:1px solid var(--border);border-left:2px solid transparent;
+  cursor:pointer;transition:all .2s;user-select:none;
+}
+.citem:hover{border-color:var(--border2);}
+.citem.done{opacity:.5;border-left-color:var(--accent);}
+.citem.done .cname{text-decoration:line-through;color:var(--muted);}
+.citem.done .cbox{background:var(--accent);border-color:var(--accent);color:var(--bg);}
+.cbox{width:14px;height:14px;flex-shrink:0;border:1px solid var(--border2);border-radius:2px;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-size:9px;}
+.ctext{flex:1;}
+.cicon{font-size:12px;flex-shrink:0;margin-top:1px;}
+.cname{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:12px;color:var(--text);display:block;margin-bottom:1px;}
+.cnote{font-size:10px;color:var(--muted);line-height:1.4;}
+.cprice{font-size:9px;color:var(--a3);letter-spacing:.08em;margin-top:3px;display:block;}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MECHANIC<span>.LAB</span></div>
+  <div class="mode-ind"><div class="mode-dot" id="modeDot"></div><span id="modeInd">CODE MODE</span></div>
+</header>
+
+<div class="layout">
+<!-- ===== LEFT ===== -->
+<div class="left">
+  <div class="tabs">
+    <button class="tab active" id="tab-td" onclick="switchTab('td')">TOP-DOWN PLAN</button>
+    <button class="tab" id="tab-fv" onclick="switchTab('fv')">FRONT VIEW</button>
+  </div>
+
+  <!-- ===== TOP-DOWN VIEW ===== -->
+  <div class="view active" id="view-td">
+    <div style="max-width:720px;margin:0 auto;">
+      <div style="font-size:9px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">// overhead floor plan — bird's eye view</div>
+
+      <!-- SVG OVERHEAD DIAGRAM -->
+      <svg id="td-svg" viewBox="0 0 760 500" xmlns="http://www.w3.org/2000/svg"
+  style="width:100%;border:1px solid #2a3a3e;border-radius:6px;background:#0a0e10;display:block;margin-bottom:24px;">
+
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="rgba(0,255,136,0.05)" stroke-width="0.5"/>
+    </pattern>
+    <linearGradient id="ledP" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff3344"/><stop offset="33%" stop-color="#ff6b00"/>
+      <stop offset="66%" stop-color="#00ff88"/><stop offset="100%" stop-color="#00aaff"/>
+    </linearGradient>
+    <linearGradient id="ledL" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00aaff"/><stop offset="100%" stop-color="#00ff88"/>
+    </linearGradient>
+    <linearGradient id="ledR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff6b00"/><stop offset="100%" stop-color="#ffdd00"/>
+    </linearGradient>
+    <linearGradient id="ledU" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#aa44ff"/><stop offset="100%" stop-color="#00aaff"/>
+    </linearGradient>
+    <linearGradient id="deskGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#161e24"/><stop offset="100%" stop-color="#111820"/>
+    </linearGradient>
+    <linearGradient id="rgbGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff3344"/><stop offset="20%" stop-color="#ff6b00"/>
+      <stop offset="40%" stop-color="#ffdd00"/><stop offset="60%" stop-color="#00ff88"/>
+      <stop offset="80%" stop-color="#00aaff"/><stop offset="100%" stop-color="#aa44ff"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="760" height="500" fill="url(#grid)"/>
+
+  <!-- WALL: y 0-22 -->
+  <rect x="0" y="0" width="760" height="22" fill="#0f1c22"/>
+  <text x="380" y="14" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#3a6070" letter-spacing="5">W A L L</text>
+
+  <!-- Pegboard addon (on wall) -->
+  <g id="svg-pegboard" opacity="0">
+    <rect x="90" y="1" width="440" height="20" rx="1" fill="rgba(90,65,30,.55)" stroke="rgba(200,155,70,.65)" stroke-width="1.2"/>
+    <text x="310" y="14" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#ddbb55" letter-spacing="2">🗂 PEGBOARD — CABLE MGMT</text>
+  </g>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DESK 1: rect y=36 to y=256 (height=220)                    -->
+  <!-- Label tab sits at y=23–37, clearly above desk border        -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Desk 1 surface -->
+  <rect x="28" y="36" width="596" height="220" rx="4" fill="url(#deskGrad)" stroke="#3a4e58" stroke-width="1.8"/>
+  <rect id="desk1-glow" x="28" y="36" width="596" height="220" rx="4" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.7"/>
+
+  <!-- Desk 1 label: tab above the desk rect, NOT overlapping it -->
+  <rect x="34" y="23" width="248" height="16" rx="2" fill="#0a0e10"/>
+  <text x="158" y="35" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#00ff88" letter-spacing="2">DESK 01 — MIDNIGHT REAPER</text>
+
+  <!-- MONITORS at y=46 (10px inside desk top border) -->
+  <!-- Dell U2412: x=68, w=148 -->
+  <rect x="68" y="46" width="148" height="34" rx="2" fill="#0c1820" stroke="rgba(0,170,255,0.6)" stroke-width="1.8"/>
+  <rect id="td-ledL" x="68" y="77" width="148" height="4" rx="1" fill="url(#ledL)" opacity="0.75"/>
+  <text x="142" y="61" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#55aadd">DELL U2412</text>
+  <text x="142" y="73" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#3a7a99">24" — TERMINAL</text>
+  <line x1="142" y1="81" x2="142" y2="96" stroke="#2a4050" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+  <!-- Gigabyte G24: x=226, w=200 -->
+  <rect id="td-monP-rect" x="226" y="42" width="200" height="40" rx="2" fill="#0c1c14" stroke="#00ff88" stroke-width="2.2" filter="url(#glow)"/>
+  <rect id="td-ledP" x="226" y="79" width="200" height="4" rx="1" fill="url(#ledP)" opacity="0.95"/>
+  <text x="326" y="59" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#00ff88" id="td-msP">GIGABYTE G24</text>
+  <text x="326" y="73" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8.5" fill="#00cc66" id="td-roleP">24" — MAIN · CODE</text>
+  <line x1="326" y1="83" x2="326" y2="96" stroke="#2a4050" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+  <!-- MSI Pro 2412: x=436, w=148 -->
+  <rect x="436" y="46" width="148" height="34" rx="2" fill="#0c1820" stroke="rgba(255,107,0,0.6)" stroke-width="1.8"/>
+  <rect id="td-ledR" x="436" y="77" width="148" height="4" rx="1" fill="url(#ledR)" opacity="0.75"/>
+  <text x="510" y="61" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#dd8833">MSI PRO 2412</text>
+  <text x="510" y="73" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#996622">24" — REFERENCE</text>
+  <line x1="510" y1="81" x2="510" y2="96" stroke="#2a4050" stroke-width="1.5" stroke-dasharray="3,2"/>
+
+  <!-- Light bar addon -->
+  <g id="svg-lightbar" opacity="0">
+    <rect x="226" y="38" width="200" height="6" rx="1" fill="rgba(255,235,60,.25)" stroke="rgba(255,235,60,.7)" stroke-width="1.2"/>
+    <text x="326" y="45" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#ffe840">💡 LIGHT BAR</text>
+  </g>
+
+  <!-- Monitor arms addon -->
+  <g id="svg-arms" opacity="0">
+    <circle cx="142" cy="88" r="7" fill="none" stroke="rgba(0,170,255,.8)" stroke-width="2"/>
+    <circle cx="326" cy="88" r="7" fill="none" stroke="rgba(0,255,136,.8)" stroke-width="2"/>
+    <circle cx="510" cy="88" r="7" fill="none" stroke="rgba(255,107,0,.8)" stroke-width="2"/>
+    <text x="326" y="112" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(0,220,255,.7)">MONITOR ARMS INSTALLED</text>
+  </g>
+
+  <!-- Desk mat addon -->
+  <g id="svg-mat" opacity="0">
+    <rect x="40" y="118" width="480" height="128" rx="3" fill="rgba(18,24,30,.65)" stroke="rgba(70,95,115,.5)" stroke-width="1.2" stroke-dasharray="6,4"/>
+    <text x="280" y="188" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#3a5566" letter-spacing="5">— DESK MAT —</text>
+  </g>
+
+  <!-- LED glow addon -->
+  <g id="svg-leds" opacity="0">
+    <rect x="40" y="38" width="592" height="50" rx="3" fill="rgba(130,30,230,.09)" stroke="rgba(200,100,255,.45)" stroke-width="1.2" stroke-dasharray="5,3"/>
+    <text x="336" y="52" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="rgba(210,130,255,.85)" letter-spacing="3">✦ RGB BIAS LEDs ACTIVE</text>
+  </g>
+
+  <!-- KEYBOARD centred at y=130 -->
+  <rect x="196" y="130" width="210" height="68" rx="3" fill="#141e26" stroke="#2e4050" stroke-width="1.4"/>
+  <rect x="204" y="138" width="194" height="8" rx="1" fill="#1e2e3a"/>
+  <rect x="204" y="149" width="194" height="8" rx="1" fill="#1e2e3a"/>
+  <rect x="204" y="160" width="194" height="8" rx="1" fill="#1e2e3a"/>
+  <rect x="204" y="171" width="194" height="8" rx="1" fill="#1e2e3a"/>
+  <rect x="208" y="191" width="186" height="3" rx="1" fill="url(#rgbGrad)" opacity="0.85"/>
+  <text x="301" y="204" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#5a8898" letter-spacing="1">ROG AZOTH</text>
+
+  <!-- MOUSE -->
+  <ellipse cx="456" cy="166" rx="20" ry="30" fill="#161e26" stroke="#2e4050" stroke-width="1.4"/>
+  <line x1="456" y1="144" x2="456" y2="157" stroke="#2a3a48" stroke-width="1.5"/>
+  <rect x="451" y="149" width="10" height="12" rx="4" fill="#2a3a48"/>
+  <text x="456" y="210" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8.5" fill="#5a8898">ROG KERIS</text>
+
+  <!-- Left deco -->
+  <rect x="40" y="140" width="68" height="20" rx="2" fill="#111c24" stroke="#2a3848" stroke-width="1"/>
+  <text x="74" y="153" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#5a7888">📔 NOTE</text>
+  <rect x="40" y="164" width="68" height="20" rx="2" fill="#111c24" stroke="#2a3848" stroke-width="1"/>
+  <text x="74" y="177" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#5a7888">☕ MUG</text>
+
+  <!-- Lamp addon -->
+  <g id="svg-lamp" opacity="0">
+    <rect x="514" y="140" width="76" height="20" rx="2" fill="rgba(255,107,0,.18)" stroke="rgba(255,130,0,.6)" stroke-width="1.4"/>
+    <text x="552" y="153" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#ffaa55">🕯 LAMP</text>
+  </g>
+  <!-- Plant addon -->
+  <g id="svg-plant" opacity="0">
+    <rect x="514" y="166" width="76" height="20" rx="2" fill="rgba(0,210,80,.14)" stroke="rgba(0,220,80,.55)" stroke-width="1.4"/>
+    <text x="552" y="179" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#44ff88">🪴 PLANT</text>
+  </g>
+
+  <!-- TOWER -->
+  <rect x="638" y="60" width="50" height="96" rx="3" fill="#141e26" stroke="#2e4050" stroke-width="1.8"/>
+  <circle cx="663" cy="80" r="6" fill="#00ff88">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="663" cy="98" r="6" fill="#ff6b00">
+    <animate attributeName="opacity" values="1;0.3;1" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  <text x="663" y="142" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#5a8898" letter-spacing="1">REAPER</text>
+
+  <!-- Desk 1 width annotation -->
+  <text x="326" y="270" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#2a4a5a" letter-spacing="2">← Desk 1 · approx 140cm width →</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- INPUT LEAP: y=280–302, fully between desk 1 and desk 2 tab  -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <line x1="200" y1="280" x2="200" y2="290" stroke="#1e3a50" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <line x1="400" y1="280" x2="400" y2="290" stroke="#1e3a50" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <rect x="118" y="280" width="290" height="22" rx="3" fill="rgba(0,170,255,.08)" stroke="rgba(0,170,255,.4)" stroke-width="1.2"/>
+  <text x="263" y="294" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#33bbff" letter-spacing="1.5">INPUT LEAP — SHARED KB/MOUSE</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- DESK 2: rect y=320 to y=468 (height=148)                   -->
+  <!-- Label tab sits at y=307–321, clearly above desk border      -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <!-- Desk 2 surface -->
+  <rect x="28" y="320" width="400" height="148" rx="4" fill="url(#deskGrad)" stroke="#2e3e4a" stroke-width="1.8"/>
+  <rect id="desk2-glow" x="28" y="320" width="400" height="148" rx="4" fill="none" stroke="#00aaff" stroke-width="2" opacity="0"/>
+
+  <!-- Desk 2 label: tab above desk rect, below Input Leap -->
+  <rect x="34" y="307" width="208" height="16" rx="2" fill="#0a0e10"/>
+  <text x="138" y="319" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#00aaff" letter-spacing="2">DESK 02 — MACBOOK M2</text>
+
+  <!-- Ultrawide -->
+  <rect id="td-monU-rect" x="44" y="328" width="240" height="36" rx="2" fill="#0c1828" stroke="rgba(0,170,255,.6)" stroke-width="2" filter="url(#glow)"/>
+  <rect id="td-ledU" x="44" y="361" width="240" height="4" rx="1" fill="url(#ledU)" opacity="0.75"/>
+  <text x="164" y="344" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#44bbff">MSI PRO 34" ULTRAWIDE</text>
+  <text x="164" y="357" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#3a8aaa" id="td-roleU">MAC WORKSPACE</text>
+  <line x1="164" y1="365" x2="164" y2="378" stroke="#2a3a48" stroke-width="1.5" stroke-dasharray="2,2"/>
+
+  <!-- MacBook lid -->
+  <rect x="302" y="330" width="108" height="32" rx="2" fill="#141e28" stroke="rgba(0,170,255,.35)" stroke-width="1.4"/>
+  <text x="356" y="343" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#3a8aaa"> M2</text>
+  <text x="356" y="356" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="7.5" fill="#2a6070">LID OPEN</text>
+  <line x1="356" y1="362" x2="356" y2="374" stroke="#2a3a48" stroke-width="1.5" stroke-dasharray="2,2"/>
+
+  <!-- USB Hub addon -->
+  <g id="svg-hub" opacity="0">
+    <rect x="44" y="436" width="110" height="22" rx="2" fill="rgba(0,170,255,.16)" stroke="rgba(0,170,255,.6)" stroke-width="1.4"/>
+    <text x="99" y="450" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#33bbff">🔌 USB-C HUB</text>
+  </g>
+
+  <text x="228" y="485" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="8" fill="#2a4a5a" letter-spacing="2">← secondary desk / side table →</text>
+
+  <!-- LEGEND -->
+  <rect x="452" y="320" width="250" height="148" rx="3" fill="rgba(10,16,22,.95)" stroke="#2e3e4a" stroke-width="1.2"/>
+  <text x="577" y="340" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#3a6878" letter-spacing="3">LEGEND</text>
+  <rect x="466" y="350" width="24" height="8" rx="1" fill="#00ff88" opacity="0.75"/>
+  <text x="498" y="360" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aabc">Primary / active desk</text>
+  <rect x="466" y="366" width="24" height="8" rx="1" fill="#00aaff" opacity="0.65"/>
+  <text x="498" y="376" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aabc">Mac setup</text>
+  <rect x="466" y="382" width="24" height="8" rx="1" fill="#ff6b00" opacity="0.65"/>
+  <text x="498" y="392" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aabc">Reference / secondary</text>
+  <line x1="466" y1="406" x2="490" y2="406" stroke="#00aaff" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="498" y="409" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aabc">Input Leap link</text>
+  <circle cx="478" cy="424" r="6" fill="none" stroke="rgba(0,255,136,.75)" stroke-width="2"/>
+  <text x="498" y="427" font-family="Share Tech Mono,monospace" font-size="9" fill="#88aabc">Monitor arm (addon)</text>
+  <text x="466" y="448" font-family="Share Tech Mono,monospace" font-size="8" fill="#3a6878">✓ Tick items → appear on plan</text>
+  <text x="466" y="462" font-family="Share Tech Mono,monospace" font-size="8" fill="#3a6878">✓ Modes change LED colours</text>
+
+</svg>
+
+<!-- ECOSYSTEM LABEL -->
+<div style="font-size:9px;letter-spacing:.28em;color:#3a6878;text-transform:uppercase;margin:8px 0 10px;">// full device ecosystem — network map</div>
+
+<!-- ECOSYSTEM SVG — separate, full width, tall -->
+<svg id="eco-svg" viewBox="0 0 1100 700" xmlns="http://www.w3.org/2000/svg"
+  style="width:100%;border:1px solid #2a3a3e;border-radius:6px;background:#0a0e10;display:block;">
+
+  <defs>
+    <pattern id="grid2" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M 36 0 L 0 0 0 36" fill="none" stroke="rgba(0,255,136,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="glow2">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glow3">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1100" height="700" fill="url(#grid2)"/>
+
+  <!-- Section title -->
+  <text x="550" y="26" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#2a5060" letter-spacing="4">// FULL DEVICE ECOSYSTEM — NETWORK MAP</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ROUTER — centred top                        -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="430" y="44" width="240" height="72" rx="6" fill="#0e1c2e" stroke="rgba(0,170,255,.85)" stroke-width="2.5" filter="url(#glow2)"/>
+  <circle cx="458" cy="68" r="8" fill="#00aaff">
+    <animate attributeName="opacity" values="1;0.2;1" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <text x="640" y="66" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="14" fill="#55ddff">NetComm NL20</text>
+  <text x="640" y="86" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="11" fill="#2a8aaa">WiFi 6 Router · Network Hub</text>
+  <text x="640" y="104" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="10" fill="#1e6070">192.168.1.1</text>
+
+  <!-- Network connection lines (from router outward) -->
+  <!-- → Surface Pro 7 (top-left): router left=430, mid-y≈80. Target device centre x≈140, y≈240 -->
+  <line x1="430" y1="72" x2="160" y2="228" stroke="rgba(255,107,0,.75)" stroke-width="2.5"/>
+  <!-- n8n label on that line -->
+  <rect x="196" y="148" width="110" height="20" rx="3" fill="rgba(255,107,0,.16)" stroke="rgba(255,130,0,.65)" stroke-width="1.2"/>
+  <text x="251" y="161" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#ffaa44">↑ n8n PUBLIC</text>
+
+  <!-- → Dell XPS (bottom-left): target x≈140, y≈480 -->
+  <line x1="436" y1="116" x2="160" y2="468" stroke="rgba(0,255,136,.5)" stroke-width="2" stroke-dasharray="7,4"/>
+
+  <!-- → iPhone 12 (right): target x≈760, y≈240 -->
+  <line x1="670" y1="72" x2="790" y2="228" stroke="rgba(170,80,255,.65)" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="758" y="162" font-family="Share Tech Mono,monospace" font-size="10" fill="rgba(200,110,255,.85)">~ WiFi</text>
+
+  <!-- → ROG Phone 7 (far right): target x≈920, y≈440 -->
+  <line x1="668" y1="100" x2="920" y2="420" stroke="rgba(255,107,0,.65)" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="836" y="290" font-family="Share Tech Mono,monospace" font-size="10" fill="rgba(255,150,50,.85)">~ WiFi</text>
+
+  <!-- OptiPlex has NO line — air-gapped -->
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SURFACE PRO 7 — top left                    -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="24" y="216" width="224" height="170" rx="6" fill="#0e1828" stroke="rgba(255,107,0,.75)" stroke-width="2.5"/>
+  <rect x="24" y="204" width="160" height="18" rx="3" fill="#0a0e10"/>
+  <text x="104" y="217" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#ff9944" letter-spacing="1.5">SURFACE PRO 7</text>
+  <!-- screen -->
+  <rect x="34" y="224" width="204" height="110" rx="3" fill="#060e18" stroke="#1e3040" stroke-width="1.2"/>
+  <text x="136" y="244" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#ff8833">Ubuntu Linux</text>
+  <text x="136" y="258" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#cc6622">n8n Automation Server</text>
+  <rect x="44" y="266" width="120" height="3.5" rx="1" fill="rgba(255,107,0,.65)"/>
+  <rect x="44" y="274" width="88" height="3.5" rx="1" fill="rgba(255,107,0,.45)"/>
+  <rect x="44" y="282" width="104" height="3.5" rx="1" fill="rgba(255,107,0,.55)"/>
+  <rect x="44" y="290" width="60" height="3.5" rx="1" fill="rgba(255,107,0,.4)"/>
+  <rect x="44" y="298" width="92" height="3.5" rx="1" fill="rgba(255,107,0,.5)"/>
+  <circle cx="218" cy="236" r="6" fill="#ff6b00" filter="url(#glow2)">
+    <animate attributeName="opacity" values="1;0.2;1" dur="1.8s" repeatCount="indefinite"/>
+  </circle>
+  <text x="174" y="280" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="12" fill="#ffbb44">n8n</text>
+  <!-- footer info -->
+  <text x="136" y="358" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#44aacc">automate.researchwing.cc</text>
+  <text x="136" y="374" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#2a6070">DevOps · Automation · Workflows</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- DELL XPS 13 — bottom left                   -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="24" y="456" width="224" height="170" rx="6" fill="#0e1828" stroke="rgba(0,255,136,.6)" stroke-width="2.5"/>
+  <rect x="24" y="444" width="135" height="18" rx="3" fill="#0a0e10"/>
+  <text x="91" y="457" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#00ee66" letter-spacing="1.5">DELL XPS 13</text>
+  <rect x="34" y="464" width="204" height="110" rx="3" fill="#060e12" stroke="#1e3028" stroke-width="1.2"/>
+  <text x="136" y="484" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#00cc55">Ubuntu Linux · 8GB RAM</text>
+  <rect x="44" y="494" width="96" height="3.5" rx="1" fill="rgba(0,255,136,.6)"/>
+  <rect x="44" y="502" width="68" height="3.5" rx="1" fill="rgba(0,255,136,.4)"/>
+  <rect x="44" y="510" width="108" height="3.5" rx="1" fill="rgba(0,255,136,.5)"/>
+  <rect x="44" y="518" width="52" height="3.5" rx="1" fill="rgba(0,255,136,.35)"/>
+  <rect x="44" y="526" width="80" height="3.5" rx="1" fill="rgba(0,255,136,.45)"/>
+  <text x="178" y="512" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#44ff88">bash</text>
+  <text x="136" y="596" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#2a9050">Linux Learning · Networking</text>
+  <text x="136" y="612" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#1e6040">System Administration</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- DELL OPTIPLEX — bottom centre               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="290" y="456" width="224" height="170" rx="6" fill="#0e1418" stroke="rgba(255,51,68,.55)" stroke-width="2.5"/>
+  <rect x="290" y="444" width="152" height="18" rx="3" fill="#0a0e10"/>
+  <text x="366" y="457" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#ff4455" letter-spacing="1.5">DELL OPTIPLEX</text>
+  <rect x="300" y="464" width="204" height="82" rx="3" fill="#06090c" stroke="#1e2030" stroke-width="1.2"/>
+  <text x="402" y="488" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#991f2f">Windows 7</text>
+  <text x="402" y="506" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#771822">Legacy / Retro Gaming</text>
+  <text x="402" y="522" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#551015">500GB HDD · Offline Sandbox</text>
+  <!-- AIR GAPPED warning -->
+  <rect x="300" y="556" width="204" height="34" rx="3" fill="rgba(255,51,68,.13)" stroke="rgba(255,51,68,.65)" stroke-width="1.8" stroke-dasharray="6,4"/>
+  <text x="402" y="574" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#ff4455">⚠  AIR-GAPPED</text>
+  <text x="402" y="612" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#3a4050">No network connection · Physically isolated</text>
+
+  <!-- NETWORK LEGEND — centre -->
+  <rect x="296" y="216" width="290" height="210" rx="5" fill="rgba(8,14,20,.97)" stroke="#2a3a46" stroke-width="1.5"/>
+  <text x="441" y="240" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="12" fill="#3a7080" letter-spacing="4">NETWORK MAP</text>
+  <line x1="314" y1="256" x2="348" y2="256" stroke="rgba(0,255,136,.75)" stroke-width="3"/>
+  <text x="360" y="259" font-family="Share Tech Mono,monospace" font-size="10.5" fill="#88aabc">Ethernet (LAN)</text>
+  <line x1="314" y1="276" x2="348" y2="276" stroke="rgba(170,80,255,.75)" stroke-width="2.5" stroke-dasharray="6,4"/>
+  <text x="360" y="279" font-family="Share Tech Mono,monospace" font-size="10.5" fill="#88aabc">WiFi</text>
+  <line x1="314" y1="296" x2="348" y2="296" stroke="rgba(255,107,0,.85)" stroke-width="3"/>
+  <text x="360" y="299" font-family="Share Tech Mono,monospace" font-size="10.5" fill="#88aabc">n8n public endpoint</text>
+  <rect x="314" y="312" width="32" height="12" rx="2" fill="rgba(255,51,68,.14)" stroke="rgba(255,51,68,.6)" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="360" y="321" font-family="Share Tech Mono,monospace" font-size="10.5" fill="#88aabc">Air-gapped device</text>
+  <line x1="308" y1="340" x2="574" y2="340" stroke="#1a2a34" stroke-width="1"/>
+  <text x="441" y="358" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#2a5060">→ Future: VLAN segmentation on NL20</text>
+  <text x="441" y="374" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#2a5060">→ n8n: automate.researchwing.cc</text>
+  <text x="441" y="390" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#2a5060">→ OptiPlex: physically isolated</text>
+  <text x="441" y="406" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#2a5060">→ Samba share on Midnight Reaper</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- iPHONE 12 — right side                      -->
+  <!-- Phone body: 120×240px — proper phone shape  -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="730" y="200" width="120" height="258" rx="20" fill="#0e1830" stroke="rgba(170,80,255,.85)" stroke-width="3" filter="url(#glow2)"/>
+  <rect x="730" y="188" width="100" height="18" rx="4" fill="#0a0e10"/>
+  <text x="790" y="201" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#cc66ff" letter-spacing="1.5">iPHONE 12</text>
+  <!-- Side buttons -->
+  <rect x="727" y="240" width="4" height="30" rx="2" fill="#1e2a40"/>
+  <rect x="727" y="278" width="4" height="50" rx="2" fill="#1e2a40"/>
+  <rect x="850" y="252" width="4" height="44" rx="2" fill="#1e2a40"/>
+  <!-- Notch -->
+  <rect x="762" y="204" width="36" height="9" rx="4.5" fill="#0a0e10"/>
+  <!-- Screen -->
+  <rect x="740" y="212" width="100" height="228" rx="12" fill="#060a14" stroke="#1e2a44" stroke-width="1"/>
+  <!-- Status bar -->
+  <text x="752" y="228" font-family="Share Tech Mono,monospace" font-size="8" fill="#3a4860">9:41</text>
+  <text x="830" y="228" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="8" fill="#3a4860">●●●</text>
+  <!-- App icons 3 rows × 3 cols -->
+  <rect x="748" y="238" width="24" height="24" rx="6" fill="rgba(170,80,255,.6)"/>
+  <rect x="778" y="238" width="24" height="24" rx="6" fill="rgba(0,170,255,.6)"/>
+  <rect x="808" y="238" width="24" height="24" rx="6" fill="rgba(0,255,136,.5)"/>
+  <rect x="748" y="268" width="24" height="24" rx="6" fill="rgba(255,107,0,.6)"/>
+  <rect x="778" y="268" width="24" height="24" rx="6" fill="rgba(255,51,68,.55)"/>
+  <rect x="808" y="268" width="24" height="24" rx="6" fill="rgba(170,80,255,.5)"/>
+  <rect x="748" y="298" width="24" height="24" rx="6" fill="rgba(0,255,136,.45)"/>
+  <rect x="778" y="298" width="24" height="24" rx="6" fill="rgba(255,200,0,.55)"/>
+  <rect x="808" y="298" width="24" height="24" rx="6" fill="rgba(0,170,255,.45)"/>
+  <!-- Role labels -->
+  <text x="790" y="340" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#aa77ee">MFA Authenticator</text>
+  <text x="790" y="356" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#aa77ee">Remote Monitor</text>
+  <text x="790" y="372" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#aa77ee">App Testing</text>
+  <!-- Home bar -->
+  <rect x="768" y="428" width="44" height="5" rx="2.5" fill="#2a3448"/>
+  <!-- Specs -->
+  <text x="790" y="478" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#5a6888">128GB · iOS</text>
+  <text x="790" y="493" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="#3a4868">iPhone 12 · 2020</text>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- ROG PHONE 7 — far right                     -->
+  <!-- Phone body: 130×270px — bigger gaming phone -->
+  <!-- ═══════════════════════════════════════════ -->
+  <rect x="900" y="360" width="130" height="290" rx="22" fill="#0e1420" stroke="rgba(255,107,0,.95)" stroke-width="3.5" filter="url(#glow3)"/>
+  <rect x="896" y="348" width="148" height="18" rx="4" fill="#0a0e10"/>
+  <text x="964" y="361" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="11" fill="#ff9933" letter-spacing="1.5">ROG PHONE 7</text>
+  <!-- Side buttons (thick for gaming) -->
+  <rect x="897" y="420" width="4" height="40" rx="2" fill="#1e2830"/>
+  <rect x="897" y="468" width="4" height="60" rx="2" fill="#1e2830"/>
+  <rect x="1030" y="440" width="4" height="60" rx="2" fill="#2a3a44"/>
+  <!-- AirTriggers (side buttons unique to ROG) -->
+  <rect x="1030" y="410" width="4" height="24" rx="2" fill="rgba(255,107,0,.7)"/>
+  <text x="1038" y="424" font-family="Share Tech Mono,monospace" font-size="7" fill="rgba(255,130,0,.7)">L2</text>
+  <!-- ROG logo band at top of screen -->
+  <rect x="908" y="362" width="114" height="18" rx="3" fill="rgba(255,107,0,.25)" stroke="rgba(255,130,0,.7)" stroke-width="1.5"/>
+  <text x="964" y="374" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#ffcc55" letter-spacing="3">R O G</text>
+  <!-- Screen -->
+  <rect x="908" y="382" width="114" height="238" rx="10" fill="#060a0e" stroke="#1e2830" stroke-width="1.2"/>
+  <!-- AniMe Matrix area -->
+  <rect x="912" y="386" width="106" height="24" rx="2" fill="rgba(255,107,0,.18)"/>
+  <text x="964" y="400" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9" fill="rgba(255,180,60,.9)" letter-spacing="1">AniMe Matrix</text>
+  <!-- Game app icons 3×3 -->
+  <rect x="914" y="416" width="26" height="26" rx="6" fill="rgba(255,51,68,.65)"/>
+  <rect x="946" y="416" width="26" height="26" rx="6" fill="rgba(255,107,0,.65)"/>
+  <rect x="978" y="416" width="26" height="26" rx="6" fill="rgba(170,80,255,.65)"/>
+  <rect x="914" y="448" width="26" height="26" rx="6" fill="rgba(0,255,136,.5)"/>
+  <rect x="946" y="448" width="26" height="26" rx="6" fill="rgba(0,170,255,.55)"/>
+  <rect x="978" y="448" width="26" height="26" rx="6" fill="rgba(255,200,0,.55)"/>
+  <rect x="914" y="480" width="26" height="26" rx="6" fill="rgba(255,51,68,.5)"/>
+  <rect x="946" y="480" width="26" height="26" rx="6" fill="rgba(255,107,0,.5)"/>
+  <rect x="978" y="480" width="26" height="26" rx="6" fill="rgba(170,80,255,.5)"/>
+  <!-- Role labels on screen -->
+  <text x="964" y="524" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#ff9944">Mobile Gaming</text>
+  <text x="964" y="540" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#ff9944">Aura RGB Sync</text>
+  <text x="964" y="556" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#ff9944">ROG Ecosystem</text>
+  <!-- Home bar -->
+  <rect x="944" y="608" width="52" height="5" rx="2.5" fill="#2a3448"/>
+  <!-- Pulsing RGB side strip -->
+  <rect x="900" y="382" width="5" height="180" rx="2.5" fill="#ff6b00">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="0.9s" repeatCount="indefinite"/>
+  </rect>
+  <!-- Rear glow effect -->
+  <rect x="898" y="360" width="134" height="292" rx="22" fill="none" stroke="rgba(255,107,0,.25)" stroke-width="8" filter="url(#glow3)"/>
+  <!-- Specs -->
+  <text x="964" y="666" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#5a6888">Snapdragon 8 Gen 2 · 16GB RAM</text>
+  <text x="964" y="681" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="9.5" fill="#5a6888">165Hz AMOLED · Gaming Phone</text>
+
+</svg>
+    </div>
+  </div><!-- /view-td -->
+
+  <!-- ===== FRONT VIEW ===== -->
+  <div class="view" id="view-fv">
+    <div class="front-scene">
+      <div class="wall-area">
+
+        <!-- WALL DECO -->
+        <div class="wall-deco-row">
+          <div id="fv-pegboard" class="wd" style="border-color:rgba(180,140,80,.3);color:#ccaa66;">
+            <span>🗂️</span>PEGBOARD
+          </div>
+          <div class="wd"><span>🖼️</span>DARK PRINT</div>
+          <div class="wd"><span>📡</span>SURFACE PRO</div>
+        </div>
+
+        <!-- BOTH DESKS SIDE BY SIDE -->
+        <div class="fv-desks">
+
+          <!-- DESK 1 GROUP -->
+          <div class="fv-desk">
+            <div class="fv-desk-label" style="color:var(--accent)">── DESK 01 · MIDNIGHT REAPER ──</div>
+            <div class="fv-mons">
+              <!-- LEFT MONITOR -->
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <div class="fv-mon fvm-secondary" id="fv-monL" style="border-color:rgba(0,170,255,.3);">
+                  <div class="fled" id="fv-ledL" style="background:linear-gradient(90deg,#00aaff,#00ff88);opacity:.55;"></div>
+                  <div class="fsc">
+                    <div class="cln s"></div><div class="cln f"></div><div class="cln m"></div>
+                    <span style="font-size:7px;color:var(--muted)">TERMINAL</span>
+                  </div>
+                </div>
+                <div class="fv-stand"></div><div class="fv-base"></div>
+              </div>
+              <!-- PRIMARY -->
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <div class="fv-mon fvm-primary" id="fv-monP" style="border-color:rgba(0,255,136,.5);box-shadow:0 0 24px rgba(0,255,136,.12);">
+                  <div class="fled" id="fv-ledP" style="background:linear-gradient(90deg,#ff3344,#ff6b00,#00ff88,#00aaff);opacity:.85;"></div>
+                  <div class="fsc">
+                    <div class="cln g f"></div><div class="cln s"></div><div class="cln g m"></div><div class="cln f"></div>
+                    <div style="display:flex;align-items:center;gap:2px;margin-top:2px;">
+                      <span style="font-size:7px;color:var(--accent)" id="fv-lbl">VSCODE</span>
+                      <div class="blink-cur"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="fv-stand"></div><div class="fv-base" style="width:44px;"></div>
+              </div>
+              <!-- RIGHT MONITOR -->
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <div class="fv-mon fvm-tertiary" id="fv-monR" style="border-color:rgba(255,107,0,.3);">
+                  <div class="fled" id="fv-ledR" style="background:linear-gradient(90deg,#ff6b00,#ffdd00);opacity:.55;"></div>
+                  <div class="fsc">
+                    <div class="cln f"></div><div class="cln m"></div><div class="cln s"></div>
+                    <span style="font-size:7px;color:var(--muted)">REFERENCE</span>
+                  </div>
+                </div>
+                <div class="fv-stand"></div><div class="fv-base"></div>
+              </div>
+            </div>
+
+            <!-- LIGHT BAR addon visible on primary in front view -->
+            <div id="fv-lightbar" class="fv-addon" style="font-size:8px;color:#ffee88;text-align:center;letter-spacing:.1em;padding:2px 0;margin-top:-4px;margin-bottom:2px;">━━━ 💡 LIGHT BAR ━━━</div>
+          </div>
+
+          <!-- DIVIDER -->
+          <div class="fv-divider"></div>
+
+          <!-- DESK 2 GROUP -->
+          <div class="fv-desk">
+            <div class="fv-desk-label" style="color:var(--a3)">── DESK 02 · MACBOOK M2 ──</div>
+            <div class="fv-mons">
+              <!-- ULTRAWIDE -->
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <div class="fv-mon fvm-ultrawide" id="fv-monU" style="border-color:rgba(0,170,255,.4);box-shadow:0 0 20px rgba(0,170,255,.1);">
+                  <div class="fled" id="fv-ledU" style="background:linear-gradient(90deg,#aa44ff,#00aaff);opacity:.7;"></div>
+                  <div class="fsc">
+                    <div class="cln f"></div><div class="cln m"></div><div class="cln g f"></div><div class="cln s"></div>
+                    <span style="font-size:7px;color:var(--a3)" id="fv-ulbl">MAC WORKSPACE</span>
+                  </div>
+                </div>
+                <div class="fv-stand"></div><div class="fv-base" style="width:50px;"></div>
+              </div>
+              <!-- MACBOOK open on stand -->
+              <div style="display:flex;flex-direction:column;align-items:center;">
+                <div class="fv-mon fvm-macbook" style="border-color:rgba(0,170,255,.25);">
+                  <div class="fsc">
+                    <div style="font-size:16px;color:var(--a3);"></div>
+                    <span style="font-size:7px;color:var(--muted);letter-spacing:.08em;">M2 MacBook</span>
+                  </div>
+                </div>
+                <div class="fv-stand"></div><div class="fv-base" style="width:30px;"></div>
+              </div>
+            </div>
+            <!-- USB hub addon -->
+            <div id="fv-hub" class="fv-addon" style="font-size:8px;color:var(--a3);text-align:center;letter-spacing:.1em;padding:2px 0;margin-top:-2px;">🔌 USB-C HUB</div>
+          </div>
+
+        </div><!-- /fv-desks -->
+
+        <!-- DESK SURFACE LINE -->
+        <div class="fv-surface"></div>
+      </div><!-- /wall-area -->
+
+      <!-- FLOOR / BELOW SURFACE -->
+      <div class="fv-floor">
+        <!-- DESK 1 KB AREA -->
+        <div class="fv-kb-area">
+          <div style="display:flex;gap:6px;align-items:center;">
+            <div id="fv-lamp" class="fv-addon" style="font-size:8px;color:var(--a2);padding:3px 6px;background:rgba(255,107,0,.08);border:1px solid rgba(255,107,0,.3);">🕯️ LAMP</div>
+            <div class="fv-kb">ROG AZOTH<div class="rgb-line"></div></div>
+            <div class="fv-mouse"></div>
+            <div id="fv-plant" class="fv-addon" style="font-size:8px;color:#44ff88;padding:3px 6px;background:rgba(0,200,80,.08);border:1px solid rgba(0,200,80,.3);">🪴 PLANT</div>
+          </div>
+          <div id="fv-mat" class="fv-addon" style="font-size:8px;color:var(--muted);letter-spacing:.1em;text-align:center;padding:2px 0;width:180px;border-top:1px solid var(--border2);margin-top:3px;">▬ DESK MAT ▬</div>
+        </div>
+
+        <!-- DESK 2 KB AREA -->
+        <div class="fv-kb-area">
+          <div style="font-size:8px;color:var(--muted);letter-spacing:.08em;text-align:center;">Input Leap →<br>same kb/mouse</div>
+        </div>
+      </div>
+
+    </div><!-- /front-scene -->
+  </div><!-- /view-fv -->
+
+</div><!-- /left -->
+
+<!-- ===== RIGHT SIDEBAR ===== -->
+<div class="right">
+
+  <!-- MODES -->
+  <div class="sblock">
+    <div class="stitle">Active Mode</div>
+    <div class="mgrid">
+      <button class="mbtn on" data-mode="code"   onclick="setMode('code')"  ><span class="mi">💻</span>CODE</button>
+      <button class="mbtn"    data-mode="gaming" onclick="setMode('gaming')"><span class="mi">🎮</span>GAMING</button>
+      <button class="mbtn"    data-mode="movie"  onclick="setMode('movie')" ><span class="mi">🎬</span>MOVIE</button>
+      <button class="mbtn"    data-mode="mac"    onclick="setMode('mac')"   ><span class="mi">🍎</span>MAC</button>
+    </div>
+    <div class="mdesc" id="mdesc">
+      <strong>Code Mode</strong>
+      G24 = VSCode. Dell left = terminal. MSI right = docs/browser. Input Leap active.
+    </div>
+  </div>
+
+  <!-- OWNED -->
+  <div class="sblock">
+    <div class="stitle">Your Gear</div>
+    <div class="olist">
+      <div class="orow"><span class="oicon">⌨️</span><span class="oname">ROG Azoth</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">🖱️</span><span class="oname">ROG Keris</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">🖥️</span><span class="oname">Gigabyte G24 (24")</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">🖥️</span><span class="oname">Dell U2412 (24")</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">🖥️</span><span class="oname">MSI Pro 2412 (24")</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">📺</span><span class="oname">MSI 34" Ultrawide</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">💻</span><span class="oname">MacBook M2</span><span class="otag">OWNED</span></div>
+      <div class="orow"><span class="oicon">🖥️</span><span class="oname">Midnight Reaper PC</span><span class="otag">OWNED</span></div>
+      <div class="orow" style="border-left-color:rgba(255,107,0,.4)"><span class="oicon">📡</span><span class="oname">Surface Pro 7 (Ubuntu)</span><span class="otag" style="color:var(--a2);border-color:rgba(255,107,0,.3)">n8n</span></div>
+      <div class="orow" style="border-left-color:rgba(0,255,136,.2)"><span class="oicon">🐧</span><span class="oname">Dell XPS 13 (Ubuntu)</span><span class="otag">OWNED</span></div>
+      <div class="orow" style="border-left-color:rgba(255,51,68,.3)"><span class="oicon">🕹️</span><span class="oname">Dell OptiPlex (Win7)</span><span class="otag" style="color:var(--red);border-color:rgba(255,51,68,.3)">OFFLINE</span></div>
+      <div class="orow" style="border-left-color:rgba(170,80,255,.4)"><span class="oicon">📱</span><span class="oname">iPhone 12 (128GB)</span><span class="otag">OWNED</span></div>
+      <div class="orow" style="border-left-color:rgba(255,107,0,.6)"><span class="oicon">🎮</span><span class="oname">Asus ROG Phone 7</span><span class="otag" style="color:var(--a2);border-color:rgba(255,107,0,.4)">ROG</span></div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="sblock">
+    <div class="stitle">Upgrade Checklist</div>
+    <div class="progwrap">
+      <div class="proglbl">PROGRESS <span id="ptxt">0 / 8</span></div>
+      <div class="progbar"><div class="progfill" id="pfill" style="width:0%"></div></div>
+    </div>
+    <br>
+    <div class="clist">
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-leds">
+        <span class="cicon">🌈</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Govee RGBIC LED Strips</span>
+          <span class="cnote">Behind all 3 monitors — instant lab glow</span>
+          <span class="cprice">~$35 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-mat,fv-mat">
+        <span class="cicon">🗂️</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">XL Desk Mat (90×40cm)</span>
+          <span class="cnote">Full black — unifies the surface</span>
+          <span class="cprice">~$30 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-lightbar,fv-lightbar">
+        <span class="cicon">💡</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Monitor Light Bar</span>
+          <span class="cnote">Xiaomi Mi — sits on top of G24</span>
+          <span class="cprice">~$40 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-hub,fv-hub">
+        <span class="cicon">🔌</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Anker USB-C Hub</span>
+          <span class="cnote">Single cable dock for MacBook</span>
+          <span class="cprice">~$80 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-arms">
+        <span class="cicon">🖥️</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Monitor Arms ×3 (Ergotron LX)</span>
+          <span class="cnote">Clears desk — biggest visual change</span>
+          <span class="cprice">~$180 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-pegboard,fv-pegboard">
+        <span class="cicon">🧱</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Black Pegboard (wall)</span>
+          <span class="cnote">Cable mgmt + Surface Pro mount</span>
+          <span class="cprice">~$40 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-lamp,fv-lamp">
+        <span class="cicon">🕯️</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Industrial Desk Lamp</span>
+          <span class="cnote">Metal arm, warm tone</span>
+          <span class="cprice">~$50 AUD</span>
+        </div>
+      </div>
+      <div class="citem" onclick="toggleCheck(this)" data-addons="svg-plant,fv-plant">
+        <span class="cicon">🪴</span><div class="cbox"></div>
+        <div class="ctext">
+          <span class="cname">Small Plant</span>
+          <span class="cnote">Corner of desk — softens the edges</span>
+          <span class="cprice">~$15 AUD</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /right -->
+</div><!-- /layout -->
+
+<script>
+// ── TAB SWITCH ──
+function switchTab(id) {
+  ['td','fv'].forEach(function(t){
+    document.getElementById('tab-'+t).classList.toggle('active', t===id);
+    document.getElementById('view-'+t).classList.toggle('active', t===id);
+  });
+}
+
+// ── MODE CONFIG ──
+var MC = {
+  code:  {c:'#00ff88',g:'rgba(0,255,136,.12)',  lbl:'CODE MODE',   d1:true,  d2:false, pRole:'VSCODE',    uRole:'MAC WORKSPACE',
+          desc:'<strong>Code Mode</strong>G24 = VSCode. Dell left = terminal. MSI right = docs. Input Leap on.',
+          ledP:'linear-gradient(90deg,#ff3344,#ff6b00,#00ff88,#00aaff)',
+          ledL:'linear-gradient(90deg,#00aaff,#00ff88)', ledR:'linear-gradient(90deg,#ff6b00,#ffdd00)',
+          ledU:'linear-gradient(90deg,#aa44ff,#00aaff)'},
+  gaming:{c:'#ff3344',g:'rgba(255,51,68,.12)',   lbl:'GAMING MODE', d1:true,  d2:false, pRole:'GAME 144Hz', uRole:'STANDBY',
+          desc:'<strong>Gaming Mode</strong>G24 = game at 144Hz. Dell left = Discord. Input Leap OFF — full mouse capture. LEDs red.',
+          ledP:'linear-gradient(90deg,#ff0000,#ff3344,#ff0000)',
+          ledL:'linear-gradient(90deg,#880011,#ff3344)', ledR:'linear-gradient(90deg,#ff3344,#880011)',
+          ledU:'linear-gradient(90deg,#330011,#ff3344)'},
+  movie: {c:'#ff6b00',g:'rgba(255,107,0,.12)',   lbl:'MOVIE MODE',  d1:false, d2:true,  pRole:'IDLE',       uRole:'PLEX · MOVIE',
+          desc:'<strong>Movie Mode</strong>34" Ultrawide = Plex. Desk lamp dimmed. LEDs warm amber. Reaper serves media.',
+          ledP:'linear-gradient(90deg,#221100,#443300,#221100)',
+          ledL:'linear-gradient(90deg,#110800,#221100)', ledR:'linear-gradient(90deg,#221100,#110800)',
+          ledU:'linear-gradient(90deg,#ff6b00,#ffcc00,#ff6b00)'},
+  mac:   {c:'#00aaff',g:'rgba(0,170,255,.12)',   lbl:'MAC WORK',    d1:false, d2:true,  pRole:'REFERENCE',  uRole:'MAC MAIN',
+          desc:'<strong>Mac Work Mode</strong>Ultrawide = main macOS display. MacBook on stand. Input Leap routes kb/mouse to Mac.',
+          ledP:'linear-gradient(90deg,#001122,#00aaff,#001122)',
+          ledL:'linear-gradient(90deg,#001133,#003355)', ledR:'linear-gradient(90deg,#003355,#001133)',
+          ledU:'linear-gradient(90deg,#aa44ff,#00aaff,#aa44ff)'}
+};
+
+function el(id){return document.getElementById(id);}
+function hexRgb(h){return parseInt(h.slice(1,3),16)+','+parseInt(h.slice(3,5),16)+','+parseInt(h.slice(5,7),16);}
+
+// SVG attribute helpers
+function svgStroke(id,val){var n=el(id);if(n)n.setAttribute('stroke',val);}
+function svgOpacity(id,val){var n=el(id);if(n)n.setAttribute('opacity',val);}
+function svgFill(id,val){var n=el(id);if(n)n.setAttribute('fill',val);}
+function svgText(id,val){var n=el(id);if(n)n.textContent=val;}
+
+function setMode(m){
+  var c=MC[m];
+  // buttons
+  document.querySelectorAll('.mbtn').forEach(function(b){b.classList.toggle('on',b.dataset.mode===m);});
+  // header
+  el('modeDot').style.background=c.c; el('modeDot').style.boxShadow='0 0 8px '+c.c;
+  el('modeInd').textContent=c.lbl; el('modeInd').style.color=c.c;
+  el('mdesc').innerHTML=c.desc;
+
+  var rgb=hexRgb(c.c);
+
+  // ── SVG TOP-DOWN desk glows ──
+  svgStroke('desk1-glow', c.d1?c.c:'#2a3a3e');
+  svgOpacity('desk1-glow', c.d1?'0.7':'0.15');
+  svgStroke('desk2-glow', c.d2?c.c:'#2a3a3e');
+  svgOpacity('desk2-glow', c.d2?'0.7':'0');
+
+  // primary monitor rect
+  svgStroke('td-monP-rect', c.d1?c.c:'rgba(0,255,136,0.3)');
+  svgFill('td-msP', c.c);
+  svgText('td-roleP', '24" — '+c.pRole);
+  svgFill('td-roleP', c.d1?c.c:'#4a6068');
+
+  // ultrawide
+  svgStroke('td-monU-rect', c.d2?c.c:'rgba(0,170,255,0.35)');
+  svgText('td-roleU', c.uRole);
+  svgFill('td-roleU', c.d2?c.c:'#4a8090');
+
+  // SVG LED strips
+  svgOpacity('td-ledP', c.d1?'0.85':'0.12');
+  svgOpacity('td-ledL', c.d1?'0.65':'0.08');
+  svgOpacity('td-ledR', c.d1?'0.65':'0.08');
+  svgOpacity('td-ledU', c.d2?'0.85':'0.18');
+
+  // ── FV (HTML) monitor updates ──
+  var fvP=el('fv-monP');
+  fvP.style.borderColor='rgba('+rgb+',.5)'; fvP.style.boxShadow='0 0 24px '+c.g;
+  el('fv-lbl').textContent=c.pRole; el('fv-lbl').style.color=c.c;
+  el('fv-ulbl').textContent=c.uRole;
+  el('fv-ledP').style.background=c.ledP; el('fv-ledP').style.opacity=c.d1?'.85':'.12';
+  el('fv-ledL').style.background=c.ledL; el('fv-ledL').style.opacity=c.d1?'.55':'.06';
+  el('fv-ledR').style.background=c.ledR; el('fv-ledR').style.opacity=c.d1?'.55':'.06';
+  el('fv-ledU').style.opacity=c.d2?'.85':'.22';
+  var urgb=c.d2?rgb:hexRgb('#00aaff');
+  el('fv-monU').style.borderColor='rgba('+urgb+',.4)';
+  el('fv-monU').style.boxShadow='0 0 20px rgba('+urgb+',.1)';
+}
+
+// ── CHECKLIST ──
+// Map checklist data-addons to SVG group IDs + HTML addon IDs
+var svgAddonMap = {
+  'svg-leds':     true,  // SVG groups toggled by opacity
+  'svg-mat':      true,
+  'svg-lightbar': true,
+  'svg-hub':      true,
+  'svg-arms':     true,
+  'svg-pegboard': true,
+  'svg-lamp':     true,
+  'svg-plant':    true
+};
+
+function toggleCheck(item){
+  var done=item.classList.toggle('done');
+  item.querySelector('.cbox').textContent=done?'✓':'';
+  var addons=(item.getAttribute('data-addons')||'').split(',');
+  addons.forEach(function(id){
+    id=id.trim(); if(!id)return;
+    var node=el(id);
+    if(!node)return;
+    if(svgAddonMap[id]){
+      // SVG group — toggle via opacity
+      node.setAttribute('opacity', done?'1':'0');
+    } else {
+      // HTML element
+      if(done){
+        node.classList.add('shown');
+        node.style.animation='none'; node.offsetHeight; node.style.animation='';
+      } else {
+        node.classList.remove('shown');
+      }
+    }
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  var items=document.querySelectorAll('.citem');
+  var done=document.querySelectorAll('.citem.done').length;
+  document.getElementById('ptxt').textContent=done+' / '+items.length;
+  document.getElementById('pfill').style.width=((done/items.length)*100)+'%';
+}
+
+// init
+setMode('code');
+</script>
+</body>
+</html>
